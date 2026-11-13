@@ -183,7 +183,9 @@ Grid::from_fn(width, height, |_, _| rng.chance(percent))
 ```
 
 `_` binds nothing, so there's nothing to declare twice; `|_x, _y|` works
-(`board.t`'s `soup`).
+(`board.t`'s `soup`). A function's parameters too: `fn k(_: u8, _: u8)`
+is refused the same way (t-lang `src/check.rs`, where a function's
+parameters are checked, compares names without skipping `_`).
 
 ## Small things — unsure
 
