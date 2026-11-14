@@ -82,20 +82,21 @@ impl Band {
         }
     }
 
-    /// The band's next generation, from its rows and the two next to
-    /// them, which must be there.
-    ///
-    /// It takes the band and gives it back, rather than changing it
-    /// through a `&mut`: `core::mem::swap(&mut self.now, &mut self.next)`
-    /// forgets that each is `rows + 2` high (FRICTION.md).
-    fn step(self, rule: &Rule) -> Band {
-        let Band { rows, end, width, now, next: mut next } = self;
+    /// Works out the band's next generation, from its rows and the two
+    /// next to them, which must be there.
+    fn step(&mut self, rule: &Rule) {
         let mut r: usize = 1;
-        while r <= rows invariant r >= 1 {
-            board::next_row(rule, now.row(r - 1), now.row(r), now.row(r + 1), next.row_mut(r));
+        while r <= self.rows invariant r >= 1 {
+            board::next_row(
+                rule,
+                self.now.row(r - 1),
+                self.now.row(r),
+                self.now.row(r + 1),
+                self.next.row_mut(r),
+            );
             r = r + 1;
         }
-        Band { rows, end, width, now: next, next: now }
+        core::mem::swap(&mut self.now, &mut self.next);
     }
 }
 
@@ -237,7 +238,7 @@ fn work(mut band: Band, i: usize, n: usize, shared: &Shared, rule: Rule) with al
         while k < gens {
             let edges = if gen % 2 == 0 { &shared.even } else { &shared.odd };
             exchange(&mut band, i, n, edges, &shared.team);
-            band = band.step(&rule);
+            band.step(&rule);
             gen = core::num::wrapping_add(gen, 1);
             k = k + 1;
         }

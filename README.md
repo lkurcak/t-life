@@ -72,7 +72,7 @@ t main.t --rule B36/S23       # HighLife
 t build -o life main.t
 ```
 
-`t` 0.88.0 or later; it fetches the t-libs packages `t.toml` names.
+`t` 0.89.0 or later; it fetches the t-libs packages `t.toml` names.
 `tests/run.sh` runs what CI runs: `t check --deny-warnings`, `t fmt
 --check`, `t test`, the text output for a few command lines against
 `tests/expected.txt` (interpreted and compiled, each engine at several
