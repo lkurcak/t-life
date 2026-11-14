@@ -13,7 +13,6 @@
 #![warn(implicit_panics)]
 
 use alloc::string::String;
-use core::fmt::Write;
 use std::env::Args;
 use std::io::{Error, Stdout};
 use std::thread::Threads;
@@ -99,17 +98,14 @@ fn main(os: Os) -> Result<(), Error> {
         };
         let mut show = Show::new(about(&asked), asked.rule);
         let out = screen.out();
-        // A closure that names `os.clock` takes all of `os`, part of which
-        // is gone (FRICTION.md): so the clock's taken out first.
-        let clock = os.clock;
         return match asked.kind {
             Kind::Pool => pool::run(&os.threads, &start, asked.rule, asked.threads, |p| {
-                play::play(p, &mut show, out, &mut raw, clock, &mut rng)
+                play::play(p, &mut show, out, &mut raw, os.clock, &mut rng)
             }),
             _ => {
                 let spawn = asked.kind == Kind::Spawn;
                 let mut e = Local::new(&os.threads, &start, asked.rule, asked.threads, spawn);
-                play::play(&mut e, &mut show, out, &mut raw, clock, &mut rng)
+                play::play(&mut e, &mut show, out, &mut raw, os.clock, &mut rng)
             },
         };
     }
@@ -188,27 +184,13 @@ fn bench(
         let end = by(threads, &start, asked, kind, gens);
         let ms = clock.now().since(t0).as_millis();
         let h = board::hash(&end);
-        // No widths in format strings yet (FRICTION.md): pad by hand.
-        let mut line = String::from(name);
-        pad(&mut line, 6);
-        let ms = String::of(&ms);
-        pad(&mut line, core::num::saturating_sub(14, ms.len()));
-        line.push_str(ms.as_str());
-        line.put(&f" ms   hash {h:x}").into_ok();
-        out.line(line.as_str())?;
+        out.line(&f"{name:<6}{ms:>8} ms   hash {h:x}")?;
         match first {
             None => first = Some(h),
             Some(f) => agree = agree && f == h,
         }
     }
     out.line(if agree { "They agree." } else { "They DON'T agree." })
-}
-
-/// Puts spaces at the end of `s` until it's `width` bytes long.
-fn pad(s: &mut String, width: usize) with alloc {
-    while s.len() < width {
-        s.push(' ');
-    }
 }
 
 /// Reads the command line: `None` if it's not as `USAGE` says.

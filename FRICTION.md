@@ -168,7 +168,10 @@ and the board read back from the pool is checked again. A refinement on
 what a `Mutex` holds, proved at `new` and in each `lock`'s closure, would
 do it; this is the price of opacity, and small here.
 
-## A closure takes all of a variable, not the field it names — gap
+## A closure takes all of a variable, not the field it names — gap (fixed in t 0.91.0)
+
+**Fixed in t 0.91.0** (t-lang step 76): a closure captures the places it
+names, so the pool's closure names `os.clock` itself (`main.t`).
 
 ```rust
 let mut input = os.stdin;
@@ -181,7 +184,10 @@ The closure names only `os.clock`, a `Copy` field, but takes `os`, which
 `os.stdin` has left. Rust (2021) takes only the fields a closure names.
 Fixed by `let clock = os.clock;` before it (`main.t`).
 
-## No widths in format strings — gap
+## No widths in format strings — gap (fixed in t 0.91.0)
+
+**Fixed in t 0.91.0** (t-lang step 76): the bench's table is
+`f"{name:<6}{ms:>8} ms   hash {h:x}"`, and `main.t`'s `pad` is gone.
 
 `f"{name:<6}{ms:>8} ms"` isn't allowed: a hole can say `:?`, `:x` or
 `:08x` and nothing else yet. The bench's table pads by hand (`main.t`'s
@@ -224,7 +230,8 @@ parameters are checked, compares names without skipping `_`).
 - `rows.first()?` doesn't tell the checker that `rows.len() >= 1`
   (`board.t`'s `drawn` checks again).
 - `let Band { rows, mut next } = band` is refused, with a good message:
-  `next: mut next`. Rust has the shorthand.
+  `next: mut next`. Rust has the shorthand. **Fixed in t 0.91.0**: it's
+  allowed.
 - `with` is a keyword, so the scoped API is `pool::run(.., |p| ..)`, not
   `pool::with`.
 - t-libs' `Grid` had no mutable rows (`row_mut`, `cells_mut`), nor a way
