@@ -159,7 +159,15 @@ way, but a trait's method can't be refined yet ("an impl's would have to
 ask no more than the trait's, and promise no less"). So it gives a
 `Grid<bool>`, and `play` and `by` check its size again.
 
-## What's in a `Mutex` is out of sight — by design
+## What's in a `Mutex` is out of sight — by design (a refined one since t 0.89.0)
+
+**Possible since t 0.89.0** (t-lang step 74), not adopted here yet: a
+`Mutex` can hold a refined value, `Mutex<{ l: List<bool> | l.len() == w
+}>`, made with `List::filled(w, false)`. Each `lock`'s closure is checked
+to keep it, and what the closure gives back keeps what it knew
+(`m.lock(|l| l.len())` is `w`). A field's can name the struct's other
+fields, so `Edges` could hold its `width`, and `copy` could be
+`copy_from_slice` of a whole row. Found by t-lang's retrospective 10.
 
 The checker never looks inside a `Mutex` (lemma Z3 of docs/41), so the
 edge rows, `Mutex<List<bool>>`, can't say they're a row long, nor the
