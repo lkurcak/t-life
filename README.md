@@ -51,9 +51,10 @@ boards:
   next one through a `&mut` of its own, all reading this one.
 - `one`: no threads.
 
-`--threads N` says how many (4 by default; no more than the board has
-rows). `--bench` times each at a board 512 by 512 for 100 generations (or
-as `--size` and `--gens` say), and checks that they agree:
+`--threads N` says how many (by default as many as the machine runs at
+once, `os.threads.available()`; no more than the board has rows).
+`--bench` times each at a board 512 by 512 for 100 generations (or as
+`--size` and `--gens` say), and checks that they agree:
 
 ```text
 $ life --bench --size 2048x2048 --gens 300 --threads 16 --seed 1

@@ -107,7 +107,14 @@ lose what's known of it. `main.t`'s `by` checks the board's size again
 after `pool::run`. docs/55 lists it ("nothing goes through a closure"); a
 closure called once, whose result is the call's, seems the easy case.
 
-## Waiting means spinning, with no hint — gap
+## Waiting means spinning, with no hint — gap (mostly fixed in t 0.90.0)
+
+**Mostly fixed in t 0.90.0** (t-lang step 75): `core::sync::spin()` is
+public, and `core::sync::Barrier` is t-lang's, spinning with it; this
+program's own barrier (`sync.t`) is gone. On the hosted target `spin`
+gives the thread's time up (`sched_yield`): on 512 × 512, 300
+generations, the pool at 32 threads takes 34 ms, not 480. Still no
+sleeping wait (`Condvar`, parking).
 
 There's no way to wait for another thread but to look again and again:
 no `Condvar`, no parking, no barrier, and `core::sync::spin`, the hint
@@ -127,7 +134,10 @@ the pool takes 191 ms with 16 threads, 242 ms with 32. `spin` made public
 (as `core::sync::spin_loop` or `std::thread::yield_now`) would be the
 smallest step; a sleeping `Barrier` or `Condvar` in std after.
 
-## No count of the machine's cores — gap
+## No count of the machine's cores — gap (fixed in t 0.90.0)
+
+**Fixed in t 0.90.0** (t-lang step 75): `--threads` defaults to
+`os.threads.available()`, up to 1024.
 
 There's nothing like Rust's `available_parallelism`, so `--threads`
 defaults to 4 (`main.t`'s `THREADS`). It'd be something `Threads` knows:
@@ -177,7 +187,11 @@ Fixed by `let clock = os.clock;` before it (`main.t`).
 `:08x` and nothing else yet. The bench's table pads by hand (`main.t`'s
 `pad`).
 
-## No bulk copies of slices — gap
+## No bulk copies of slices — gap (fixed in t 0.90.0)
+
+**Fixed in t 0.90.0** (t-lang step 75): `pool.t`'s `copy` is
+`copy_from_slice` of the rows' common length, `put` is
+`extend_from_slice`, and t-libs' `Grid::copy` is `List::from_slice`.
 
 There's no `copy_from_slice`, nor `List::extend_from_slice`, nor a quick
 copy of a `List` of `Copy` values: `pool.t` has its own `copy`, a loop, and
