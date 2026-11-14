@@ -1,6 +1,6 @@
 libraries = ["alloc", "std"]
 
 [dependencies]
-grid = { git = "https://github.com/lkurcak/t-libs", rev = "f44149808e10f386e39602d4e734f999795d9038", subdirectory = "grid" }
-rand = { git = "https://github.com/lkurcak/t-libs", rev = "f44149808e10f386e39602d4e734f999795d9038", subdirectory = "rand" }
-term = { git = "https://github.com/lkurcak/t-libs", rev = "f44149808e10f386e39602d4e734f999795d9038", subdirectory = "term" }
+grid = { git = "https://github.com/lkurcak/t-libs", rev = "060147bddec8eece372bbb14beca0e182238b68d", subdirectory = "grid" }
+rand = { git = "https://github.com/lkurcak/t-libs", rev = "060147bddec8eece372bbb14beca0e182238b68d", subdirectory = "rand" }
+term = { git = "https://github.com/lkurcak/t-libs", rev = "060147bddec8eece372bbb14beca0e182238b68d", subdirectory = "term" }

@@ -15,14 +15,13 @@
 //! reading.
 
 use alloc::list::List;
-use core::sync::{Atomic, Mutex};
+use core::sync::{Atomic, Barrier, Mutex};
 use grid::Grid;
 use std::thread::{JoinHandle, Threads};
 
 use crate::board::{self, Board};
 use crate::engine::Engine;
 use crate::rule::Rule;
-use crate::sync::Barrier;
 
 /// A band's rows, and one more above and below them: what the neighbours
 /// had at their edges.
@@ -103,11 +102,8 @@ impl Band {
 /// Copies what it can of `from` into `to`: as many cells as the shorter
 /// has.
 fn copy(from: &[bool], to: &mut [bool]) {
-    let mut x: usize = 0;
-    while x < from.len() && x < to.len() {
-        to[x] = from[x];
-        x = x + 1;
-    }
+    let n = if from.len() < to.len() { from.len() } else { to.len() };
+    to.slice_mut(0..n).copy_from_slice(from.slice(0..n));
 }
 
 /// A band's top and bottom rows, as its neighbours read them.
@@ -177,8 +173,8 @@ pub fn run<R, effect e, F: FnOnce(&mut Pool<'_>) -> R with e>(
     let height = board.height();
     let n: usize = if count as usize < height { count as usize } else { height };
     let shared = Shared {
-        team: Barrier::new(n as u32),
-        all: Barrier::new(n as u32 + 1),
+        team: Barrier::new(n),
+        all: Barrier::new(n + 1),
         gens: Atomic::new(0),
         load: Atomic::new(false),
         stop: Atomic::new(false),
@@ -271,9 +267,7 @@ fn exchange(band: &mut Band, i: usize, n: usize, edges: &List<Edges>, team: &Bar
 fn put(edge: &Mutex<List<bool>>, row: &[bool]) with alloc {
     edge.lock(|l| {
         l.clear();
-        for c in row {
-            l.push(*c);
-        }
+        l.extend_from_slice(row);
     })
 }
 

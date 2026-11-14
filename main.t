@@ -33,13 +33,16 @@ mod play;
 mod pool;
 mod rule;
 mod spawn;
-mod sync;
 
 /// How many cells in a hundred are alive at the start.
 pub const ALIVE: u64 = 35;
 
-/// How many threads, unless the command line says.
-const THREADS: u32 = 4;
+/// How many threads, unless the command line says: as many as the
+/// machine runs at once, up to 1024.
+fn default_threads(threads: &Threads) -> { n: u32 | n >= 1 && n <= 1024 } {
+    let n = threads.available();
+    if n > 1024 { 1024 } else { n as u32 }
+}
 
 /// Which engine works out the generations.
 #[derive(Copy, Discard, Eq)]
@@ -72,7 +75,7 @@ fn main(os: Os) -> Result<(), Error> {
     let mut input = os.stdin;
     let mut out = os.stdout;
     let mut err = os.stderr;
-    let Some(asked) = asked(os.args) else { return err.line(USAGE) };
+    let Some(asked) = asked(os.args, &os.threads) else { return err.line(USAGE) };
     let seed = match asked.seed {
         Some(seed) => seed,
         None => os.entropy.u64()?,
@@ -209,12 +212,12 @@ fn pad(s: &mut String, width: usize) with alloc {
 }
 
 /// Reads the command line: `None` if it's not as `USAGE` says.
-fn asked(args: Args) -> Option<Asked> {
+fn asked(args: Args, threads: &Threads) -> Option<Asked> {
     let mut a = Asked {
         rule: Rule::conway(),
         size: None,
         seed: None,
-        threads: THREADS,
+        threads: default_threads(threads),
         kind: Kind::Pool,
         gens: None,
         bench: false,
