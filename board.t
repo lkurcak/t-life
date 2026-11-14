@@ -23,7 +23,7 @@ pub fn soup(
     if width == 0 || height == 0 {
         return None;
     }
-    Grid::from_fn(width, height, |_x, _y| rng.chance(percent))
+    Grid::from_fn(width, height, |_, _| rng.chance(percent))
 }
 
 /// The row of the next generation `here` becomes, into `out`, with
@@ -164,9 +164,7 @@ fn after(board: &Board, rule: &Rule, gens: u32) -> Board with alloc {
     let mut k: u32 = 0;
     while k < gens {
         step(&now, rule, &mut next);
-        let done = next;
-        next = now;
-        now = done;
+        core::mem::swap(&mut now, &mut next);
         k = k + 1;
     }
     now

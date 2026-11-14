@@ -33,11 +33,9 @@ pub struct Local<'a> {
     spawn: bool,
     width: usize,
     height: usize,
-    /// The two boards: each generation is worked out from one into the
-    /// other. `b` is the board now if `on_b`.
-    a: { g: Board | g.width() == width && g.height() == height },
-    b: { g: Board | g.width() == width && g.height() == height },
-    on_b: bool,
+    /// The board now, and the one the next generation is worked out in.
+    now: { g: Board | g.width() == width && g.height() == height },
+    next: { g: Board | g.width() == width && g.height() == height },
 }
 
 impl<'a> Local<'a> {
@@ -57,9 +55,8 @@ impl<'a> Local<'a> {
             spawn,
             width: board.width(),
             height: board.height(),
-            a: board.copy(),
-            b: board.copy(),
-            on_b: false,
+            now: board.copy(),
+            next: board.copy(),
         }
     }
 }
@@ -68,34 +65,21 @@ impl<'a> Engine for Local<'a> {
     fn run(&mut self, gens: u32) with alloc {
         let mut k: u32 = 0;
         while k < gens {
-            // Not `core::mem::swap(&mut self.a, &mut self.b)` after each,
-            // which forgets how big they are (FRICTION.md).
-            if self.on_b {
-                if self.spawn {
-                    spawn::step(self.threads, &self.b, &self.rule, self.count, &mut self.a);
-                } else {
-                    board::step(&self.b, &self.rule, &mut self.a);
-                }
+            if self.spawn {
+                spawn::step(self.threads, &self.now, &self.rule, self.count, &mut self.next);
             } else {
-                if self.spawn {
-                    spawn::step(self.threads, &self.a, &self.rule, self.count, &mut self.b);
-                } else {
-                    board::step(&self.a, &self.rule, &mut self.b);
-                }
+                board::step(&self.now, &self.rule, &mut self.next);
             }
-            self.on_b = !self.on_b;
+            core::mem::swap(&mut self.now, &mut self.next);
             k = k + 1;
         }
     }
 
-    fn board(&self) -> Option<Grid<bool>> with alloc {
-        Some(if self.on_b { self.b.copy() } else { self.a.copy() })
-    }
+    fn board(&self) -> Option<Grid<bool>> with alloc { Some(self.now.copy()) }
 
     fn load(&mut self, board: Grid<bool>) with alloc {
         if board.width() == self.width && board.height() == self.height {
-            self.a = board;
-            self.on_b = false;
+            self.now = board;
         }
     }
 }

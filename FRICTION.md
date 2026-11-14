@@ -41,7 +41,13 @@ Most of it went through the checker the first time:
 - The interpreter runs all three, threads taking turns, and writes just
   what the compiled program does.
 
-## `core::mem::swap` of two refined places forgets their refinements — gap
+## `core::mem::swap` of two refined places forgets their refinements — gap (fixed in t 0.89.0)
+
+**Fixed in t 0.89.0** (t-lang step 74): a place lent `&mut` to a generic
+function keeps its own refinement, a field's too, of its struct's other
+fields at the call. `board.t`'s `after`, `pool.t`'s `Band::step` and
+`engine.t`'s `Local` swap now; the workarounds below are gone.
+
 
 The obvious double buffer doesn't check:
 
@@ -79,7 +85,13 @@ value and building it again with the two swapped (`Band::step`); and two
 buffers with a flag saying which is now, so nothing's swapped
 (`engine.t`'s `Local`). Repro: `swap2.t` below.
 
-## A closure's refined result doesn't come back through a generic `R` — gap
+## A closure's refined result doesn't come back through a generic `R` — gap (fixed in t 0.89.0)
+
+**Fixed in t 0.89.0** (t-lang step 74): a closure written in the call
+gives back what its body knows where it returns. `main.t`'s `by` still
+checks the board's size after `pool::run`: what its closure gives is
+`Engine::board`'s, a trait's method, which can't be refined (below).
+
 
 ```rust
 fn call<R, F: FnOnce() -> R>(f: F) -> R { f() }
@@ -175,7 +187,10 @@ engines copied the board each generation, the copy took three times as
 long as working out the generation (267 ms against 64 ms for 100
 generations of 512 × 512). They have two boards now.
 
-## `|_, _|` is a parameter declared twice — bug
+## `|_, _|` is a parameter declared twice — bug (fixed in t 0.89.0)
+
+**Fixed in t 0.89.0** (t-lang step 74).
+
 
 ```rust
 Grid::from_fn(width, height, |_, _| rng.chance(percent))
