@@ -24,7 +24,9 @@ Most of it went through the checker the first time:
   and the board, and moving each its `Band`; the handles go in a
   `List<JoinHandle<'_, ()>>`, and `handles.free_with(|h| h.join())` joins
   them all. A list of linear handles is linear itself, and `free_with` is
-  the one way to use it up: easy once found (`spawn.t`, `pool.t`).
+  the one way to use it up: easy once found (`spawn.t`, `pool.t`). Since t
+  0.95.0 (t-lang step 80) it's `for h in handles { h.join(); }`: a `for`
+  that runs to its end leaves its iterator empty, which may be dropped.
 - `spawn::step` hands each thread a disjoint `&mut [bool]` of the next
   generation, cut off the front with `split_at_mut` in a loop
   (`rest = tail`), while all of them read the whole board: scoped threads

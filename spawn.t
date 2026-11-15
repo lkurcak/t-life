@@ -41,7 +41,9 @@ pub fn step(
         top = saturating_add(top, rows);
         i = i + 1;
     }
-    handles.free_with(|h| h.join());
+    for h in handles {
+        h.join();
+    }
 }
 
 /// Works out the rows of the generation after `board` from row `top` on,

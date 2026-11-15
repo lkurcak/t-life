@@ -202,7 +202,9 @@ pub fn run<R, effect e, F: FnOnce(&mut Pool<'_>) -> R with e>(
     let r = f(&mut pool);
     shared.stop.store(true);
     shared.all.wait();
-    handles.free_with(|h| h.join());
+    for h in handles {
+        h.join();
+    }
     r
 }
 
