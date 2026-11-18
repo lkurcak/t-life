@@ -80,12 +80,10 @@ pub fn down(height: usize, y: { y: usize | y < height }) -> { d: usize | d < hei
 pub fn population(board: &Board) -> usize {
     let cells = board.cells();
     let mut n: usize = 0;
-    let mut i: usize = 0;
-    while i < cells.len() invariant n <= i {
-        if cells[i] {
+    for alive in it: cells invariant n + it.len() <= cells.len() {
+        if *alive {
             n = n + 1;
         }
-        i = i + 1;
     }
     n
 }
