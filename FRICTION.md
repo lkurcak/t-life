@@ -236,7 +236,9 @@ parameters are checked, compares names without skipping `_`).
 
 - Counting in a `for` (`n = n + 1` for each live cell) can't be proved not
   to overflow: `population` is a `while` with `invariant n <= i`. Known
-  (t-lang's F5 counting).
+  (t-lang's F5 counting). **Fixed in t 0.99.0**: `for alive in it: cells
+  invariant n + it.len() <= cells.len()`, the iterator saying what it has
+  left (t-lang step 84).
 - `rows.first()?` doesn't tell the checker that `rows.len() >= 1`
   (`board.t`'s `drawn` checks again).
 - `let Band { rows, mut next } = band` is refused, with a good message:
