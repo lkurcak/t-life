@@ -144,7 +144,11 @@ impl<'a> Engine for Pool<'a> {
         self.shared.all.wait();
     }
 
-    fn board(&self) -> Option<Grid<bool>> with alloc { Some(self.shared.board.lock(|b| b.copy())) }
+    // What's in the `Mutex` says nothing of its size, so it's looked at.
+    fn board(&self) -> Option<Grid<bool>> with alloc {
+        let b = self.shared.board.lock(|b| b.copy());
+        if b.width() >= 1 && b.height() >= 1 { Some(b) } else { None }
+    }
 
     fn load(&mut self, board: Grid<bool>) {
         if board.width() != self.width || board.height() != self.height {

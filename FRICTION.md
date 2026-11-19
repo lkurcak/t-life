@@ -91,8 +91,9 @@ buffers with a flag saying which is now, so nothing's swapped
 
 **Fixed in t 0.89.0** (t-lang step 74): a closure written in the call
 gives back what its body knows where it returns. `main.t`'s `by` still
-checks the board's size after `pool::run`: what its closure gives is
-`Engine::board`'s, a trait's method, which can't be refined (below).
+checked the board's size after `pool::run`: what its closure gives is
+`Engine::board`'s, a trait's method, which couldn't be refined until t
+0.101.0 (below).
 
 
 ```rust
@@ -154,7 +155,12 @@ transcript. The unit tests are of what one thread does. A test that's
 given `Threads` alone, not the rest of the `Os`, would still be
 repeatable, if what it tests is: these are.
 
-## Refinements can't be in a trait's methods — by design (for now)
+## Refinements can't be in a trait's methods — by design (fixed in t 0.101.0)
+
+**Fixed in t 0.101.0** (t-lang step 86): a trait's method has a contract,
+which each impl's has too. `Engine::board` gives an `Option<Board>`; the
+pool's impl looks at the size of what's in its `Mutex`, once, and `play`
+and `by` no longer check it again.
 
 `Engine::board` would say it gives a `Board`, a grid at least a cell each
 way, but a trait's method can't be refined yet ("an impl's would have to
