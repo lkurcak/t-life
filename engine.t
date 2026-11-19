@@ -12,10 +12,9 @@ pub trait Engine {
     /// Works out `gens` more generations.
     fn run(&mut self, gens: u32) with alloc;
 
-    /// The board, as it is now: `None` only if something's gone wrong.
-    /// It's a `Board`, at least a cell each way, but a trait's method
-    /// can't say so yet (FRICTION.md).
-    fn board(&self) -> Option<Grid<bool>> with alloc;
+    /// The board, as it is now, at least a cell each way: `None` only if
+    /// something's gone wrong.
+    fn board(&self) -> Option<Board> with alloc;
 
     /// Starts again from `board`, if it's as big as the one it has; if it
     /// isn't, goes on with what it has.

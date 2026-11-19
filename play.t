@@ -67,11 +67,7 @@ pub fn play<E: Engine>(
             engine.run(show.speed);
             show.gen = saturating_add(show.gen, show.speed as u64);
         }
-        // It's a `Board`, but `Engine::board` can't say so (FRICTION.md).
         let Some(b) = engine.board() else { return Ok(()) };
-        if b.width() == 0 || b.height() == 0 {
-            return Ok(());
-        }
         draw(out, &b, show)?;
         next = next.add(Duration::from_millis(FRAME_MS));
         if !wait(engine, show, raw, clock, rng, next, &b)? {

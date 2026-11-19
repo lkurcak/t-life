@@ -21,7 +21,6 @@ use std::Os;
 
 use board::Board;
 use engine::{Engine, Local};
-use grid::Grid;
 use play::Show;
 use rand::Rng;
 use rule::Rule;
@@ -140,16 +139,14 @@ fn by(threads: &Threads, start: &Board, asked: &Asked, kind: Kind, gens: u64) ->
             advance(&mut Local::new(threads, start, asked.rule, asked.threads, spawn), gens)
         },
     };
-    // What the closure gives back is a `Board`, but `pool::run`'s `R`
-    // doesn't say so (FRICTION.md): it's checked again.
     match end {
-        Some(b) => if b.width() >= 1 && b.height() >= 1 { b } else { start.copy() },
+        Some(b) => b,
         None => start.copy(),
     }
 }
 
 /// The board after `engine` works out `gens` more generations.
-fn advance<E: Engine>(engine: &mut E, gens: u64) -> Option<Grid<bool>> with alloc {
+fn advance<E: Engine>(engine: &mut E, gens: u64) -> Option<Board> with alloc {
     let mut left = gens;
     while left > 0 {
         let now: u32 = if left > 1_000_000 { 1_000_000 } else { left as u32 };
