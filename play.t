@@ -159,11 +159,11 @@ fn draw(out: &mut Stdout, board: &Board, show: &Show) -> Result<(), Error> with 
     let mut line = String::new();
     line.put(
         &f"gen {show.gen}  pop {board::population(board)}  {show.rule}  {show.about}  ",
-    ).into_ok();
+    ).unwrap();
     if show.speed == 0 {
         line.push_str("paused");
     } else {
-        line.put(&f"x{show.speed}").into_ok();
+        line.put(&f"x{show.speed}").unwrap();
     }
     line.push_str("  ");
     line.push_str(HELP);
