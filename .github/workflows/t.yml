@@ -15,5 +15,5 @@ jobs:
     with:
       # The `t` this repo is checked with. Bump both together, from the
       # release's asset digest: gh release view vX.Y.Z -R lkurcak/t-lang --json assets
-      t-version: v0.107.1
-      t-sha256: 5daabe5d0df262f410eac940bcfe1c3dbc5082080f3b55a96f986e556f71b4b8
+      t-version: v0.107.2
+      t-sha256: a225f78600c0cad9c1009d9f9e118c28ece3c0284a892879ac7fdbce6ad2a5d6
