@@ -167,13 +167,13 @@ impl<'a> Engine for Pool<'a> {
 /// `board` by `rule`; calls `f` with it, and stops it after: `f` runs it.
 /// It has a thread for each band of rows, and no more threads than the
 /// board has rows.
-pub fn run<R, effect e, F: FnOnce(&mut Pool<'_>) -> R with e>(
+pub fn run<R, F: FnOnce(&mut Pool<'_>) -> R>(
     threads: &Threads,
     board: &Board,
     rule: Rule,
     count: { n: u32 | n >= 1 && n <= 1024 },
     f: F,
-) -> R with {alloc, e} {
+) -> R with {alloc, F::e} {
     let height = board.height();
     let n: usize = if count as usize < height { count as usize } else { height };
     let shared = Shared {
